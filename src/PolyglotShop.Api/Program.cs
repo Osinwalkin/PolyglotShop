@@ -3,9 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using PolyglotShop.Infrastructure.Data;
 using System.Text.Json.Serialization;
 
-builder.Services.AddScoped<PolyglotShop.Core.Interfaces.IProductRepository, PolyglotShop.Infrastructure.Repositories.ProductRepository>();
-builder.Services.AddScoped<PolyglotShop.Core.Interfaces.IOrderRepository, PolyglotShop.Infrastructure.Repositories.OrderRepository>();
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Tilføj services til container
@@ -27,6 +24,9 @@ builder.Services.AddDbContext<ShopDbContext>(options =>
 // 2. Registrer Mongo Context (U40/U46)
 builder.Services.AddSingleton<MongoContext>();
 
+builder.Services.AddScoped<PolyglotShop.Core.Interfaces.IProductRepository, PolyglotShop.Infrastructure.Repositories.ProductRepository>();
+builder.Services.AddScoped<PolyglotShop.Core.Interfaces.IOrderRepository, PolyglotShop.Infrastructure.Repositories.OrderRepository>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -35,8 +35,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
