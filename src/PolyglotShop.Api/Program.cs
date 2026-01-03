@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using PolyglotShop.Infrastructure.Data;
 using System.Text.Json.Serialization;
 
+builder.Services.AddScoped<PolyglotShop.Core.Interfaces.IProductRepository, PolyglotShop.Infrastructure.Repositories.ProductRepository>();
+builder.Services.AddScoped<PolyglotShop.Core.Interfaces.IOrderRepository, PolyglotShop.Infrastructure.Repositories.OrderRepository>();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Tilføj services til container
