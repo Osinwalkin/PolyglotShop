@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PolyglotShop.Core.Entities;
 using PolyglotShop.Core.Interfaces;
+using System.Text.Json;
 
 namespace PolyglotShop.Api.Controllers;
 
@@ -18,6 +19,12 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(Product product)
     {
+        // Unwrap System.Text.Json elementer så MongoDB kan læse det
+        if (product.Details != null)
+        {
+            product.Details = SanitizeDictionary(product.Details);
+        }
+
         await _repo.CreateAsync(product);
         return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
     }
@@ -31,4 +38,30 @@ public class ProductsController : ControllerBase
     
     [HttpGet]
     public async Task<IEnumerable<Product>> GetAll() => await _repo.GetAllAsync();
+
+    // Helper metode
+    // Konvertere raw "JsonElement" wrappers om til Strings, Ints, or Bools
+    private Dictionary<string, object> SanitizeDictionary(Dictionary<string, object> source)
+    {
+        var result = new Dictionary<string, object>();
+        foreach (var kvp in source)
+        {
+            if (kvp.Value is JsonElement element)
+            {
+                result[kvp.Key] = element.ValueKind switch
+                {
+                    JsonValueKind.String => element.GetString() ?? string.Empty,
+                    JsonValueKind.Number => element.TryGetInt32(out int i) ? i : element.GetDouble(),
+                    JsonValueKind.True => true,
+                    JsonValueKind.False => false,
+                    _ => element.ToString() // Fallback
+                };
+            }
+            else
+            {
+                result[kvp.Key] = kvp.Value;
+            }
+        }
+        return result;
+    }
 }
