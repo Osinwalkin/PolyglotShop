@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # SQL Server (Transactional Data)
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: shop_sql
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=StrongPassword123!
+    ports:
+      - "1433:1433"
+    networks:
+      - shop-network
+
+  # MongoDB (Catalog Data)
+  mongo:
+    image: mongo:latest
+    container_name: shop_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - shop-network
+
+volumes:
+  mongo-data:
+
+networks:
+  shop-network:
+    driver: bridge
